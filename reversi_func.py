@@ -1,3 +1,9 @@
+import random
+
+n = 8
+minEvalBoard = -1 # min - 1
+maxEvalBoard = n * n + 4 * n + 4 + 1 # max + 1
+
 def isOnBoard(x, y):
     # Returns True if the coordinates are located on the board.
     return x >= 0 and x <= 7 and y >= 0 and y <= 7
@@ -81,4 +87,88 @@ def count_points(grid):
             elif z == 2:
                 whites += 1
     return [blacks, whites]
+
+def getNewBoard():
+    # Creates a brand new, blank board data structure.
+    board = []
+    for i in range(8):
+        board.append([0] * 8)
+
+    return board
+
+def getBoardCopy(board):
+    # Make a duplicate of the board list and return the duplicate.
+    dupeBoard = getNewBoard()
+
+    for x in range(8):
+        for y in range(8):
+            dupeBoard[x][y] = board[x][y]
+
+    return dupeBoard
+
+def getScoreOfBoard(board):
+    # Determine the score by counting the tiles. Returns a dictionary with keys 'X' and 'O'.
+    xscore = 0
+    oscore = 0
+    for x in range(8):
+        for y in range(8):
+            if board[x][y] == 'X':
+                xscore += 1
+            if board[x][y] == 'O':
+                oscore += 1
+    return {1:xscore, 2:oscore}
+
+def Minimax(board, tile, depth, maximizingPlayer):
+    if depth == 0 or IsTerminalNode(board, tile):
+        return getScoreOfBoard(board)[tile]
+    possibleMoves = getValidMove(board, tile)
+    # randomize the order of the possible moves
+    random.shuffle(possibleMoves)
+    if maximizingPlayer:
+        bestValue = minEvalBoard
+        for y in range(n):
+            for x in range(n):
+                if isValidMove(board,tile, x, y):
+                    dupeBoard = getBoardCopy(board)
+                    makeMove(dupeBoard, tile, x, y)
+                    v = Minimax(dupeBoard, tile, depth - 1, False)
+                    bestValue = max(bestValue, v)
+    else: # minimizingPlayer
+        bestValue = maxEvalBoard
+        for y in range(n):
+            for x in range(n):
+                if isValidMove(board, tile, x, y):
+                    dupeBoard = getBoardCopy(board)
+                    makeMove(dupeBoard, tile, x, y)
+                    v = Minimax(dupeBoard, tile, depth - 1, True)
+                    bestValue = min(bestValue, v)
+    return bestValue
+
+def IsTerminalNode(board, tile):
+    possibleMoves = getValidMove(board, tile)
+    if possibleMoves.__len__ == 0:
+        return False
+    return True
+
+
+def getComputerMove(board, computerTile):
+    # Given a board and the computer's tile, determine where to
+    # move and return that move as a [x, y] list.
+    possibleMoves = getValidMove(board, computerTile)
+
+    # randomize the order of the possible moves
+    random.shuffle(possibleMoves)
+    # Go through all the possible moves and remember the best scoring move
+    bestScore = -1
+    #for x, y in possibleMoves:
+    for y in range(n):
+            for x in range(n):
+                if isValidMove(board,computerTile, x, y):
+                    dupeBoard = getBoardCopy(board)
+                    makeMove(dupeBoard, computerTile, x, y)
+                    score = Minimax(dupeBoard,computerTile,5,True)
+                    if score > bestScore:
+                        bestMove = [x, y]
+                        bestScore = score            
+    return bestMove
 

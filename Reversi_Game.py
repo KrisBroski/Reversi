@@ -106,7 +106,7 @@ while not close:
             textSurface, textRect = f.text_objects("Two players!", smallText)
             textRect.center = ((50+345/2)), (120 + 70/2)
             screen.blit(textSurface, textRect)
-            textSurface, textRect = f.text_objects("In progress...", smallText)
+            textSurface, textRect = f.text_objects("Player vs Computer (minimax)", smallText)
             textRect.center = ((50+345/2)), (200 + 70/2)
             screen.blit(textSurface, textRect)
             textSurface, textRect = f.text_objects("In progress...", smallText)
@@ -148,11 +148,15 @@ while not close:
                 turn = 2
 
         #white turn
-        elif event.type == pygame.MOUSEBUTTONDOWN and event.button == LEFT and turn == 2 and f.isValidMove(grid, turn, column, row):
+        #elif event.type == pygame.MOUSEBUTTONDOWN and event.button == LEFT and turn == 2 and f.isValidMove(grid, turn, column, row):
+        elif turn == 2:
             # moves prints
-            print("Click ", pos, "Grid coordinates: ", column, row)
-            f.makeMove(grid, 2, column, row)
-            grid[row][column] = 2
+            x, y = f.getComputerMove(grid, turn)
+            f.makeMove(grid, turn, x, y)
+            if f.getValidMove(grid, 2) == []:
+                break
+            else:
+                turn = 'player'
 
             print("Whites:", f.count_points(grid)[1], "Blacks:",
                   f.count_points(grid)[0],) # current score
